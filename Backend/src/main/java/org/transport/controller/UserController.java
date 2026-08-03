@@ -8,6 +8,7 @@ import org.transport.dto.UserWithVehicleDto;
 import org.transport.model.User;
 import org.transport.service.UserService;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -33,5 +34,10 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserWithVehicleDto> getCurrentUser(Authentication authentication) {
         return ResponseEntity.ok(userService.getCurrentUser(authentication));
+    }
+
+    @GetMapping("/drivers")
+    public ResponseEntity<List<User>> getDrivers() {
+        return ResponseEntity.ok(userService.getDrivers());
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.transport.dto.UserWithVehicleDto;
 import org.transport.model.User;
+import org.transport.model.UserRole;
 import org.transport.model.UserVehicle;
 import org.transport.model.Vehicle;
 import org.transport.repository.UserRepository;
@@ -85,5 +86,9 @@ public class UserService {
         dto.setVehicle(vehicle);
 
         return dto;
+    }
+
+    public List<User> getDrivers() {
+        return userRepository.findByRole(UserRole.DRIVER);
     }
 }

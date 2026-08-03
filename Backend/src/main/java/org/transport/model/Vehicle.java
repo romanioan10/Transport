@@ -26,7 +26,10 @@ public class Vehicle {
     private Double capacityVolume;
     private Double capacityWeight;
 
-    @OneToOne
+    @Column(nullable = false)
+    private boolean active = true;
+
+    @ManyToOne
     @JoinColumn(name = "driver_id")
     private User driver;
 }
