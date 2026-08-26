@@ -1,9 +1,9 @@
 package org.transport.service;
 
-import org.transport.model.User;
-import org.transport.model.UserRole;
+import org.transport.dto.VehicleDto;
+import org.transport.exception.ConflictException;
+import org.transport.exception.NotFoundException;
 import org.transport.model.Vehicle;
-import org.transport.repository.UserRepository;
 import org.transport.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,61 +15,36 @@ import java.util.List;
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
-    private final UserRepository userRepository;
+    private final UserVehicleService userVehicleService;
 
-    public Vehicle addVehicle(Vehicle vehicle) {
+    public VehicleDto addVehicle(Vehicle vehicle) {
         if (vehicleRepository.existsByLicensePlate(vehicle.getLicensePlate())) {
-            throw new RuntimeException("Numarul de inmatriculare exista deja!");
+            throw new ConflictException("Numarul de inmatriculare exista deja!");
         }
 
-        return vehicleRepository.save(vehicle);
+        Vehicle saved = vehicleRepository.save(vehicle);
+        return VehicleDto.from(saved, null);
     }
 
-    public Vehicle getVehicleByDriverId(Long driverId) {
-        return vehicleRepository.findByDriverId(driverId)
-                .orElse(null);
+    public List<VehicleDto> getAllVehicles() {
+        return vehicleRepository.findAll().stream()
+                .map(vehicle -> VehicleDto.from(
+                        vehicle,
+                        userVehicleService.getActiveDriverForVehicle(vehicle).orElse(null)
+                ))
+                .toList();
     }
 
-    public Vehicle assignDriverToVehicle(Long vehicleId, Long driverId) {
+    public VehicleDto updateVehicleStatus(Long vehicleId, boolean active) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-
-        User driver = userRepository.findById(driverId)
-                .orElseThrow(() -> new RuntimeException("Driver not found"));
-
-        if (driver.getRole() != UserRole.DRIVER) {
-            throw new RuntimeException("Selected user is not a driver");
-        }
-
-        vehicleRepository.findByDriverId(driverId).ifPresent(oldVehicle -> {
-            oldVehicle.setDriver(null);
-            vehicleRepository.save(oldVehicle);
-        });
-
-        vehicle.setDriver(driver);
-
-        return vehicleRepository.save(vehicle);
-    }
-
-    public Vehicle updateVehicleStatus(Long vehicleId, boolean active) {
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+                .orElseThrow(() -> new NotFoundException("Vehicle not found"));
 
         vehicle.setActive(active);
+        Vehicle saved = vehicleRepository.save(vehicle);
 
-        return vehicleRepository.save(vehicle);
-    }
-
-    public List<Vehicle> getAllVehicles() {
-        return vehicleRepository.findAll();
-    }
-
-    public Vehicle unassignDriver(Long vehicleId) {
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-
-        vehicle.setDriver(null);
-
-        return vehicleRepository.save(vehicle);
+        return VehicleDto.from(
+                saved,
+                userVehicleService.getActiveDriverForVehicle(saved).orElse(null)
+        );
     }
 }

@@ -1,7 +1,8 @@
 package org.transport.controller;
 
-import org.transport.dto.AssignVehicleRequest;
+import org.transport.dto.VehicleDto;
 import org.transport.model.Vehicle;
+import org.transport.service.UserVehicleService;
 import org.transport.service.VehicleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,50 +16,36 @@ import java.util.List;
 public class VehicleController {
 
     private final VehicleService vehicleService;
+    private final UserVehicleService userVehicleService;
 
     @PostMapping
-   public ResponseEntity<Vehicle> addVehicle(@RequestBody Vehicle vehicle) {
-        Vehicle createdVehicle = vehicleService.addVehicle(vehicle);
-        return ResponseEntity.ok(createdVehicle);
-    }
-
-    @GetMapping("/my-vehicle/{driverId}")
-    public ResponseEntity<Vehicle> getVehicleForDriver(@PathVariable Long driverId) {
-        Vehicle vehicle = vehicleService.getVehicleByDriverId(driverId);
-
-        if (vehicle == null) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(vehicle);
-    }
-
-    @PutMapping("/{vehicleId}/assign-driver/{driverId}")
-    public ResponseEntity<Vehicle> assignDriverToVehicle(
-            @PathVariable Long vehicleId,
-            @PathVariable Long driverId
-    ) {
-        Vehicle updatedVehicle = vehicleService.assignDriverToVehicle(vehicleId, driverId);
-        return ResponseEntity.ok(updatedVehicle);
-    }
-
-    @PutMapping("/{vehicleId}/status")
-    public ResponseEntity<Vehicle> updateVehicleStatus(
-            @PathVariable Long vehicleId,
-            @RequestParam boolean active
-    ) {
-        Vehicle updatedVehicle = vehicleService.updateVehicleStatus(vehicleId, active);
-        return ResponseEntity.ok(updatedVehicle);
+    public ResponseEntity<VehicleDto> addVehicle(@RequestBody Vehicle vehicle) {
+        return ResponseEntity.ok(vehicleService.addVehicle(vehicle));
     }
 
     @GetMapping
-    public ResponseEntity<List<Vehicle>> getAllVehicles() {
-        List<Vehicle> vehicles = vehicleService.getAllVehicles();
-        return ResponseEntity.ok(vehicles);
+    public ResponseEntity<List<VehicleDto>> getAllVehicles() {
+        return ResponseEntity.ok(vehicleService.getAllVehicles());
+    }
+
+    @PutMapping("/{vehicleId}/status")
+    public ResponseEntity<VehicleDto> updateVehicleStatus(
+            @PathVariable Long vehicleId,
+            @RequestParam boolean active
+    ) {
+        return ResponseEntity.ok(vehicleService.updateVehicleStatus(vehicleId, active));
+    }
+
+    @PutMapping("/{vehicleId}/assign-driver/{driverId}")
+    public ResponseEntity<VehicleDto> assignDriverToVehicle(
+            @PathVariable Long vehicleId,
+            @PathVariable Long driverId
+    ) {
+        return ResponseEntity.ok(userVehicleService.assignDriverToVehicle(vehicleId, driverId));
     }
 
     @PutMapping("/{vehicleId}/unassign-driver")
-    public ResponseEntity<Vehicle> unassignDriver(@PathVariable Long vehicleId) {
-        Vehicle updatedVehicle = vehicleService.unassignDriver(vehicleId);
-        return ResponseEntity.ok(updatedVehicle);
+    public ResponseEntity<VehicleDto> unassignDriver(@PathVariable Long vehicleId) {
+        return ResponseEntity.ok(userVehicleService.unassignDriver(vehicleId));
     }
 }

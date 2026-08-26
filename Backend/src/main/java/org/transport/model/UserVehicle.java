@@ -1,7 +1,13 @@
 package org.transport.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "user_vehicle")
 public class UserVehicle {
@@ -10,24 +16,22 @@ public class UserVehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 🔗 legătură cu user
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // 🔗 legătură cu vehicle
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
 
-    // 🟢 dacă e mașina curentă
+    @Setter
     @Column(nullable = false)
     private boolean active;
 
-    // (opțional foarte util) istoric
-    private String assignedAt;
+    private LocalDateTime assignedAt;
 
-    private String unassignedAt;
+    private LocalDateTime unassignedAt;
 
 
     public UserVehicle() {}
@@ -36,50 +40,5 @@ public class UserVehicle {
         this.user = user;
         this.vehicle = vehicle;
         this.active = active;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Vehicle getVehicle() {
-        return vehicle;
-    }
-
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public String getAssignedAt() {
-        return assignedAt;
-    }
-
-    public void setAssignedAt(String assignedAt) {
-        this.assignedAt = assignedAt;
-    }
-
-    public String getUnassignedAt() {
-        return unassignedAt;
-    }
-
-    public void setUnassignedAt(String unassignedAt) {
-        this.unassignedAt = unassignedAt;
     }
 }

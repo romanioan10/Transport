@@ -1,10 +1,15 @@
 package org.transport.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.transport.dto.AuthResponse;
-import org.transport.dto.LoginRequest;
-import org.transport.dto.RegisterRequest;
+import org.transport.dto.Responses.AuthResponse;
+import org.transport.dto.Requests.LoginRequest;
+import org.transport.dto.Requests.RegisterRequest;
+import org.transport.exception.BadRequestException;
+import org.transport.exception.NotFoundException;
 import org.transport.model.User;
+import org.transport.model.UserRole;
+import org.transport.model.UserStatus;
 import org.transport.repository.UserRepository;
 import org.transport.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,13 +25,18 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest request) {
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new BadRequestException("Invalid password");
+        }
+
+        if(user.getStatus() == UserStatus.DISABLED)
+        {
+            throw new BadRequestException("User account is disabled");
         }
 
         String token = jwtService.generateToken(user.getEmail());
@@ -35,15 +45,16 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody RegisterRequest request) {
+    public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
 
         User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .phoneNumber(request.getPhoneNumber())
-                .role(request.getRole())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .phoneNumber(request.phoneNumber())
+                .role(UserRole.CLIENT)
+                .status(UserStatus.ACTIVE)
                 .build();
 
         userRepository.save(user);

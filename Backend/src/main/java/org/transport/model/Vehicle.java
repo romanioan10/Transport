@@ -1,16 +1,15 @@
 package org.transport.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Getter
+@Setter
 @Table(name = "vehicles")
 public class Vehicle {
 
@@ -28,8 +27,4 @@ public class Vehicle {
 
     @Column(nullable = false)
     private boolean active = true;
-
-    @ManyToOne
-    @JoinColumn(name = "driver_id")
-    private User driver;
 }

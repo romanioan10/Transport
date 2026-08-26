@@ -1,6 +1,8 @@
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../api/authApi";
+import "./Register.css";
 
 export default function Register() {
     const [form, setForm] = useState({
@@ -9,17 +11,18 @@ export default function Register() {
         firstName: "",
         lastName: "",
         phoneNumber: "",
-        role: "CLIENT",
     });
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e: any) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError("");
 
         try {
             const data = await register(form);
@@ -27,61 +30,66 @@ export default function Register() {
 
             localStorage.setItem("token", data.token);
 
-            navigate("/dashboard"); // 🔥 redirect corect
+            navigate("/dashboard");
         } catch (err) {
             console.error(err);
-            alert("Register failed");
+            setError("Register failed. Please check your details and try again.");
         }
     };
 
     return (
-        <div style={{ padding: 20 }}>
-            <h2>Register</h2>
+        <div className="register-page">
+            <div className="register-card">
+                <h2>Create account</h2>
+                <p className="register-subtitle">Sign up as a client and continue to your dashboard.</p>
 
-            <form onSubmit={handleSubmit}>
-                <input
-                    name="email"
-                    placeholder="Email"
-                    value={form.email}
-                    onChange={handleChange}
-                /><br />
+                <form onSubmit={handleSubmit} className="register-form">
+                    <input
+                        name="email"
+                        type="email"
+                        placeholder="Email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                    />
 
-                <input
-                    name="password"
-                    type="password"
-                    placeholder="Password"
-                    value={form.password}
-                    onChange={handleChange}
-                /><br />
+                    <input
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                    />
 
-                <input
-                    name="firstName"
-                    placeholder="First Name"
-                    value={form.firstName}
-                    onChange={handleChange}
-                /><br />
+                    <input
+                        name="firstName"
+                        placeholder="First Name"
+                        value={form.firstName}
+                        onChange={handleChange}
+                        required
+                    />
 
-                <input
-                    name="lastName"
-                    placeholder="Last Name"
-                    value={form.lastName}
-                    onChange={handleChange}
-                /><br />
+                    <input
+                        name="lastName"
+                        placeholder="Last Name"
+                        value={form.lastName}
+                        onChange={handleChange}
+                        required
+                    />
 
-                <input
-                    name="phoneNumber"
-                    placeholder="Phone"
-                    value={form.phoneNumber}
-                    onChange={handleChange}
-                /><br />
+                    <input
+                        name="phoneNumber"
+                        placeholder="Phone Number"
+                        value={form.phoneNumber}
+                        onChange={handleChange}
+                    />
 
-                <select name="role" value={form.role} onChange={handleChange}>
-                    <option value="CLIENT">CLIENT</option>
-                    <option value="DRIVER">DRIVER</option>
-                </select><br /><br />
+                    {error && <p className="register-error">{error}</p>}
 
-                <button type="submit">Register</button>
-            </form>
+                    <button type="submit">Register</button>
+                </form>
+            </div>
         </div>
     );
 }
