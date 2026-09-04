@@ -1,34 +1,55 @@
 package org.transport.controller;
 
-import org.transport.dto.VehicleDto;
-import org.transport.model.Vehicle;
-import org.transport.service.UserVehicleService;
-import org.transport.service.VehicleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.transport.dto.VehicleDto;
+import org.transport.dto.requests.CreateVehicleRequest;
+import org.transport.dto.requests.UpdateVehicleRequest;
+import org.transport.service.VehicleService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/vehicles")
+@RequestMapping("/vehicles")
 @RequiredArgsConstructor
 public class VehicleController {
 
     private final VehicleService vehicleService;
-    private final UserVehicleService userVehicleService;
-
-    @PostMapping
-    public ResponseEntity<VehicleDto> addVehicle(@RequestBody Vehicle vehicle) {
-        return ResponseEntity.ok(vehicleService.addVehicle(vehicle));
-    }
 
     @GetMapping
-    public ResponseEntity<List<VehicleDto>> getAllVehicles() {
-        return ResponseEntity.ok(vehicleService.getAllVehicles());
+    public ResponseEntity<List<VehicleDto>> list(
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String plate,
+            @RequestParam(required = false) String model
+    ) {
+        return ResponseEntity.ok(vehicleService.search(active, plate, model));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VehicleDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(vehicleService.getById(id));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<VehicleDto> addVehicle(@Valid @RequestBody CreateVehicleRequest request) {
+        return ResponseEntity.ok(vehicleService.addVehicle(request));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<VehicleDto> updateVehicle(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateVehicleRequest request
+    ) {
+        return ResponseEntity.ok(vehicleService.updateVehicle(id, request));
     }
 
     @PutMapping("/{vehicleId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VehicleDto> updateVehicleStatus(
             @PathVariable Long vehicleId,
             @RequestParam boolean active
@@ -36,16 +57,10 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.updateVehicleStatus(vehicleId, active));
     }
 
-    @PutMapping("/{vehicleId}/assign-driver/{driverId}")
-    public ResponseEntity<VehicleDto> assignDriverToVehicle(
-            @PathVariable Long vehicleId,
-            @PathVariable Long driverId
-    ) {
-        return ResponseEntity.ok(userVehicleService.assignDriverToVehicle(vehicleId, driverId));
-    }
-
-    @PutMapping("/{vehicleId}/unassign-driver")
-    public ResponseEntity<VehicleDto> unassignDriver(@PathVariable Long vehicleId) {
-        return ResponseEntity.ok(userVehicleService.unassignDriver(vehicleId));
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
+        vehicleService.deleteVehicle(id);
+        return ResponseEntity.noContent().build();
     }
 }

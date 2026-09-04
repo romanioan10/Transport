@@ -2,6 +2,10 @@ package org.transport.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
 
 @Data
 @Builder
@@ -36,5 +40,10 @@ public class User {
     @Column(nullable = false)
     private UserStatus status;
 
-    // Putem adauga mai tarziu: data nasterii, poza profil, etc.
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    private Instant updatedAt;
 }

@@ -1,4 +1,4 @@
-package org.transport.dto.Requests;
+package org.transport.dto.requests;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

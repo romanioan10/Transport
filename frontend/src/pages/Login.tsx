@@ -1,53 +1,72 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { login } from "../api/authApi";
+import type { FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { authApi, userApi } from "../api/endpoints";
+import { ApiError } from "../api/client";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const navigate = useNavigate(); // 🔥 TREBUIE AICI
-
-    const handleSubmit = async (e: any) => {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-
+        setError("");
+        setLoading(true);
         try {
-            const data = await login(email, password);
-
-            console.log("LOGIN SUCCESS:", data);
-
-            localStorage.setItem("token", data.token);
-
-            navigate("/dashboard"); // 🔥 redirect
+            const { token } = await authApi.login(email, password);
+            localStorage.setItem("token", token);
+            const user = await userApi.me();
+            localStorage.setItem("role", user.role);
+            navigate(user.role === "ADMIN" ? "/admin" : "/dashboard");
         } catch (err) {
-            console.error(err);
-            alert("Login failed");
+            const message = err instanceof ApiError ? err.message : "Login failed";
+            setError(message);
+        } finally {
+            setLoading(false);
         }
-    };
+    }
 
     return (
-        <div style={{ padding: 20 }}>
-            <h2>Login</h2>
+        <div className="auth-page">
+            <div className="card auth-card">
+                <h2>Sign in</h2>
+                <p className="muted">Welcome back to Transport.</p>
 
-            <form onSubmit={handleSubmit}>
-                <input
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                /><br />
+                <form onSubmit={handleSubmit} className="form">
+                    <label>
+                        Email
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </label>
 
+                    <label>
+                        Password
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </label>
 
+                    {error && <p className="form-error">{error}</p>}
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                /><br /><br />
+                    <button className="btn primary" type="submit" disabled={loading}>
+                        {loading ? "Signing in…" : "Sign in"}
+                    </button>
+                </form>
 
-                <button type="submit">Login</button>
-            </form>
+                <p className="muted center">
+                    No account yet? <Link to="/register">Register</Link>
+                </p>
+            </div>
         </div>
     );
-
 }

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { register } from "../api/authApi";
-import "./Register.css";
+import { Link, useNavigate } from "react-router-dom";
+import { authApi, userApi } from "../api/endpoints";
+import { ApiError } from "../api/client";
 
 export default function Register() {
     const [form, setForm] = useState({
@@ -13,82 +13,101 @@ export default function Register() {
         phoneNumber: "",
     });
     const [error, setError] = useState("");
-
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    function change(e: ChangeEvent<HTMLInputElement>) {
         setForm({ ...form, [e.target.name]: e.target.value });
-    };
+    }
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setError("");
-
+        setLoading(true);
         try {
-            const data = await register(form);
-            console.log("REGISTER SUCCESS:", data);
-
-            localStorage.setItem("token", data.token);
-
+            const { token } = await authApi.register(form);
+            localStorage.setItem("token", token);
+            const user = await userApi.me();
+            localStorage.setItem("role", user.role);
             navigate("/dashboard");
         } catch (err) {
-            console.error(err);
-            setError("Register failed. Please check your details and try again.");
+            const message = err instanceof ApiError ? err.message : "Registration failed";
+            setError(message);
+        } finally {
+            setLoading(false);
         }
-    };
+    }
 
     return (
-        <div className="register-page">
-            <div className="register-card">
+        <div className="auth-page">
+            <div className="card auth-card">
                 <h2>Create account</h2>
-                <p className="register-subtitle">Sign up as a client and continue to your dashboard.</p>
+                <p className="muted">Sign up as a client and continue to your dashboard.</p>
 
-                <form onSubmit={handleSubmit} className="register-form">
-                    <input
-                        name="email"
-                        type="email"
-                        placeholder="Email"
-                        value={form.email}
-                        onChange={handleChange}
-                        required
-                    />
+                <form onSubmit={handleSubmit} className="form">
+                    <label>
+                        Email
+                        <input
+                            name="email"
+                            type="email"
+                            value={form.email}
+                            onChange={change}
+                            required
+                        />
+                    </label>
 
-                    <input
-                        name="password"
-                        type="password"
-                        placeholder="Password"
-                        value={form.password}
-                        onChange={handleChange}
-                        required
-                    />
+                    <label>
+                        Password
+                        <input
+                            name="password"
+                            type="password"
+                            value={form.password}
+                            onChange={change}
+                            required
+                        />
+                    </label>
 
-                    <input
-                        name="firstName"
-                        placeholder="First Name"
-                        value={form.firstName}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="form-row">
+                        <label>
+                            First name
+                            <input
+                                name="firstName"
+                                value={form.firstName}
+                                onChange={change}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Last name
+                            <input
+                                name="lastName"
+                                value={form.lastName}
+                                onChange={change}
+                                required
+                            />
+                        </label>
+                    </div>
 
-                    <input
-                        name="lastName"
-                        placeholder="Last Name"
-                        value={form.lastName}
-                        onChange={handleChange}
-                        required
-                    />
+                    <label>
+                        Phone number
+                        <input
+                            name="phoneNumber"
+                            value={form.phoneNumber}
+                            onChange={change}
+                            placeholder="+40712345678"
+                        />
+                    </label>
 
-                    <input
-                        name="phoneNumber"
-                        placeholder="Phone Number"
-                        value={form.phoneNumber}
-                        onChange={handleChange}
-                    />
+                    {error && <p className="form-error">{error}</p>}
 
-                    {error && <p className="register-error">{error}</p>}
-
-                    <button type="submit">Register</button>
+                    <button className="btn primary" type="submit" disabled={loading}>
+                        {loading ? "Creating account…" : "Register"}
+                    </button>
                 </form>
+
+                <p className="muted center">
+                    Already have an account? <Link to="/login">Sign in</Link>
+                </p>
             </div>
         </div>
     );
