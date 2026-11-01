@@ -1,8 +1,8 @@
 # Transport Management Platform
 
-Java 21 / Spring Boot REST backend, PostgreSQL, and a React / TypeScript frontend for transport administration. The current implementation covers accounts, vehicles, and basic driver assignments. Trips, bookings, packages, and distributed services are planned in [PRD.md](PRD.md) and [IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md).
+Java 21 / Spring Boot REST backend, PostgreSQL, and a React / TypeScript frontend for transport administration. The current implementation covers accounts, vehicles, and basic driver assignments. Trips, bookings, packages, and distributed services are planned in [PRD.md](Backend/.agents/PRD.md) and [IMPLEMENTATION_PROGRESS.md](Backend/.agents/IMPLEMENTATION_PROGRESS.md).
 
-**Resuming development? Read [BUILD_HANDOFF.md](BUILD_HANDOFF.md) first.** It records completed changes, verification results, known limitations, and the next task.
+**Resuming development? Read [BUILD_HANDOFF.md](Backend/.agents/BUILD_HANDOFF.md) first.** It records completed changes, verification results, known limitations, and the next task.
 
 ## Learning checkpoint
 
@@ -137,7 +137,7 @@ The Maven tests exercise real MVC, services, JWTs, security filters, Bean Valida
 
 Authenticated requests reload account state and roles: disabling a user blocks their existing token on the next request; a role change takes effect on the next request. Re-enabling an account allows a still-valid token again. Missing/invalid credentials return JSON `401`; insufficient roles return JSON `403`. Only health is public under Actuator; other exposed management endpoints require an administrator. Login failures use one generic response.
 
-Full Docker build/startup, PostgreSQL workflows, and the smoke script require a running Docker engine. See [BUILD_HANDOFF.md](BUILD_HANDOFF.md) for what was actually verified in the latest implementation session.
+Full Docker build/startup, PostgreSQL workflows, and the smoke script require a running Docker engine. See [BUILD_HANDOFF.md](Backend/.agents/BUILD_HANDOFF.md) for what was actually verified in the latest implementation session.
 
 ## Planning documents
 
@@ -145,9 +145,9 @@ Repository hygiene: commit source, tests, resources, documentation, dependency l
 
 Previously tracked generated/IDE files have been removed from the Git index while remaining on disk (except the intentionally deleted Gradle wrapper and its IDE configuration). Their staged deletions are a one-time repository cleanup. Ignoring files does not remove them from earlier commits or stop tracking them retroactively. A new branch inherits the repository's tracked files; it does not generate these artifacts itself. Git commits staged differences, so unchanged tracked source files do not need ignore rules.
 
-- [PRD.md](PRD.md): product behavior, roles, entities, and business rules.
-- [IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md): ordered milestones and completion checkboxes.
-- [REQUIREMENTS_GAP_ANALYSIS.md](REQUIREMENTS_GAP_ANALYSIS.md): coursework coverage and remaining gaps.
-- [BUILD_HANDOFF.md](BUILD_HANDOFF.md): resumable implementation record.
+- [PRD.md](Backend/.agents/PRD.md): product behavior, roles, entities, and business rules.
+- [IMPLEMENTATION_PROGRESS.md](Backend/.agents/IMPLEMENTATION_PROGRESS.md): ordered milestones and completion checkboxes.
+- [REQUIREMENTS_GAP_ANALYSIS.md](Backend/.agents/REQUIREMENTS_GAP_ANALYSIS.md): coursework coverage and remaining gaps.
+- [BUILD_HANDOFF.md](Backend/.agents/BUILD_HANDOFF.md): resumable implementation record.
 
 Implementation references: [Spring Boot 4 migration guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide), [Docker Compose readiness dependencies](https://docs.docker.com/compose/how-tos/startup-order/).
