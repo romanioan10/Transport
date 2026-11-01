@@ -1,0 +1,7 @@
+target
+build
+.gradle
+.agents
+.env
+.env.*
+!.env.example

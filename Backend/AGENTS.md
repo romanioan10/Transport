@@ -13,11 +13,7 @@ Before making code changes:
 
 ## Build and test
 
-If this is a Maven project:
-- Use `mvn clean test` to verify changes.
-
-If this is a Gradle project:
-- Use `./gradlew test` or `gradlew.bat test` on Windows.
+This is a Maven project. Use `mvn clean test` to verify code changes. Do not reintroduce Gradle files or wrappers.
 
 ## Planning rule
 
@@ -49,11 +45,7 @@ Before making code changes:
 
 ## Build and test
 
-If this is a Maven project:
-- Use `mvn clean test` to verify changes.
-
-If this is a Gradle project:
-- Use `./gradlew test` or `gradlew.bat test` on Windows.
+This is a Maven project. Use `mvn clean test` to verify code changes. Do not reintroduce Gradle files or wrappers.
 
 ## Planning rule
 

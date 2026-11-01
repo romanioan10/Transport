@@ -2,6 +2,7 @@ package org.transport.security;
 
 import lombok.RequiredArgsConstructor;
 import org.transport.model.User;
+import org.transport.model.UserStatus;
 import org.transport.repository.UserRepository;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .roles(user.getRole().name())
+                .disabled(user.getStatus() != UserStatus.ACTIVE)
                 .build();
     }
 }

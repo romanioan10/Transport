@@ -1,0 +1,48 @@
+# Local credentials; commit examples, never the real environment files
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# IntelliJ / other local editor metadata
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.suo
+*.user
+
+# Maven output and obsolete Gradle output/caches (at any depth)
+target/
+build/
+.gradle/
+out/
+*.class
+*.jar
+*.war
+*.ear
+# Keep Maven wrapper tooling trackable if introduced later
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend dependencies, generated bundles, and tooling caches
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.cache/
+.vite/
+.pnpm-store/
+*.tsbuildinfo
+
+# Logs, temporary/editor files, and OS metadata
+logs/
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini

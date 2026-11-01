@@ -737,11 +737,12 @@ The final database schema should be managed with Flyway migrations, preferably u
 
 Current implementation alignment notes:
 
-- The backend already has Spring Boot, Gradle, PostgreSQL configuration, Docker Compose for PostgreSQL, JWT-related classes, users, vehicles, and basic controllers/services/repositories.
-- Security is currently permissive and must be tightened before protected workflows are considered complete.
-- Authentication and user registration currently exist in more than one controller path and should be consolidated.
+- The active backend build is Maven (`Backend/pom.xml`) targeting Java 21. The obsolete Gradle wrapper has been removed; any remaining local Gradle caches/build output are ignored and no longer tracked.
+- The backend has PostgreSQL configuration, JWT authentication, users, vehicles, assignments, DTO controllers, services, and repositories. Auth endpoints are consolidated under `AuthController`.
+- As of 1 November 2026, security requires authentication outside explicitly public routes, checks current account status/roles for JWT requests, and returns JSON 401/403 responses. There are 25 passing security/JWT/admin-bootstrap tests with mocked persistence; live database workflows remain to be verified.
+- Backend/frontend Dockerfiles and full Compose configuration now exist. Compose validation passes, but image builds and runtime startup have not yet been verified because the Docker daemon was unavailable during the implementation session.
 - Final auth endpoints should live under `/api/auth`, with user/admin management handled separately.
-- Some controllers currently expose JPA entities directly and should be migrated to DTO request/response models.
+- Reviewed auth/user/vehicle/assignment/driver controllers use DTOs; maintain this boundary for new endpoints.
 - Existing direct vehicle-to-driver assignment should be evolved toward trip-based driver/vehicle/trailer assignment.
 - Current numeric IDs should be evaluated against the PRD decision to use UUIDs for main entities.
 - Direct vehicle-driver assignment is not part of the final MVP model. Existing `Vehicle.driver` or `UserVehicle` style assignment should be deprecated once trip-based assignment is implemented.
